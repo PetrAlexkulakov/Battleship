@@ -22,6 +22,9 @@ function handleRequest(ws: WebSocket, requestData: any) {
       case 'reg':
         handleRegistration(ws, data, id);
         break;
+      case 'update_winners':
+        handleUpdateWinners(ws, id);
+        break;
       default:
         console.log('Unknown request type:', type);
     }
@@ -43,7 +46,7 @@ function handleRegistration(ws: WebSocket, data: any, id: number) {
       type: 'reg',
       data: JSON.stringify({
         name,
-        index: 0, // Placeholder value, replace with actual index
+        index: 0, // placeholder value
         error,
         errorText,
       }),
@@ -51,5 +54,26 @@ function handleRegistration(ws: WebSocket, data: any, id: number) {
     };
 
     console.log(JSON.stringify(response))
+    ws.send(JSON.stringify(response));
+}
+
+function handleUpdateWinners(ws: WebSocket, id: number) {
+    const winnersData = [
+      {
+        name: 'Player 1',
+        wins: 5,
+      },
+      {
+        name: 'Player 2',
+        wins: 3,
+      },
+    ];
+
+    const response = {
+      type: 'update_winners',
+      data: winnersData,
+      id,
+    };
+
     ws.send(JSON.stringify(response));
 }
