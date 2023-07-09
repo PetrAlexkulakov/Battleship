@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { handleCreateRoom } from "./roomsRequests.js";
+import { handleAddPlayerToRoom, handleCreateRoom } from "./roomsRequests.js";
 import { handleRegistration, handleUpdateWinners } from "./usersRequests.js";
 
 export function handleRequest(ws: WebSocket, requestData: any) {
@@ -14,6 +14,9 @@ export function handleRequest(ws: WebSocket, requestData: any) {
         break;
       case 'create_room':
         handleCreateRoom(ws, id);
+        break;
+      case 'add_user_to_room':
+        handleAddPlayerToRoom(ws, data, id);
         break;
       default:
         console.log('Unknown request type:', type);

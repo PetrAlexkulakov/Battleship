@@ -1,12 +1,12 @@
 import WebSocket from "ws";
 
-const playerDatabase: { [key: string]: { name: string, password: string } } = {};
+export const playerDatabase: { [key: string]: { name: string, password: string } } = {};
 
 export function handleRegistration(ws: WebSocket, data: any, id: number) {
-    const { name, password } = data;
+    const { name, password } = JSON.parse(data);
     let error = false;
     let errorText = '';
-
+    
     if (playerDatabase[name]) {
       error = true;
       errorText = 'Username already exists';
@@ -18,7 +18,7 @@ export function handleRegistration(ws: WebSocket, data: any, id: number) {
       type: 'reg',
       data: JSON.stringify({
         name,
-        index: 0, // placeholder value
+        index: 0, // placeholder
         error,
         errorText,
       }),
