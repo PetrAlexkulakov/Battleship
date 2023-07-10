@@ -14,10 +14,10 @@ export function handleAddShips(ws: WebSocket, data: any, id: number) {
             const response = {
                 type: "start_game",
                 data:
-                    {
+                    JSON.stringify({
                         ships: Object.values(gameRooms[gameId].shipPositions)[index],
                         currentPlayerIndex: index /* id of the player in the current game who have sent his ships */
-                    },
+                    }),
                 id: 0,
             }
     
