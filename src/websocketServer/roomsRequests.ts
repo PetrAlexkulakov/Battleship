@@ -1,8 +1,9 @@
 import WebSocket from "ws";
 import { wss } from "./websocketServer.js";
 import { playerDatabase } from "./usersRequests.js";
+import { IGameRooms } from "../interfaces.js";
 
-export const gameRooms: { [key: number]: { players: WebSocket[], gameField: any, shipPositions: any } } = {};
+export const gameRooms: IGameRooms = {};
 
 function generateRoomId(): number {
     return Math.floor(Math.random() * 1000);
@@ -13,7 +14,7 @@ export function handleCreateRoom(ws: WebSocket, id: number) {
     gameRooms[roomId] = {
       players: [ws],
       gameField: null, // Placeholder
-      shipPositions: null, // Placeholder 
+      shipPositions: {player1: []} 
     };
     
     wss.clients.forEach((client) => {
@@ -22,10 +23,10 @@ export function handleCreateRoom(ws: WebSocket, id: number) {
         data: JSON.stringify([
           {
               roomId: roomId,
-              roomUsers: Object.entries(playerDatabase).map(([key, value], index) => {
+              roomUsers: Object.entries(playerDatabase).map(([key, value]) => {
                   return {
                       name: value.name,
-                      index: index, 
+                      index: value.index, 
                   };
               })
           },
@@ -44,12 +45,12 @@ export function handleAddPlayerToRoom(ws: WebSocket, data: any, id: number) {
       room.players.push(ws);
     }
     
-    room.players.forEach((player) => {
+    room.players.forEach((player, index) => {
       const response = {
         type: 'create_game',
         data: JSON.stringify({
           idGame: indexRoom,
-          idPlayer: 0, // Placeholder
+          idPlayer: index,
         }),
         id,
       };

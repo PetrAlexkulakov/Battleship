@@ -1,6 +1,10 @@
 import WebSocket from "ws";
 
-export const playerDatabase: { [key: string]: { name: string, password: string } } = {};
+export const playerDatabase: { [key: string]: { name: string, password: string, index: number } } = {};
+
+function generateUserId(): number {
+  return Math.floor(Math.random() * 1000);
+}
 
 export function handleRegistration(ws: WebSocket, data: any, id: number) {
     const { name, password } = JSON.parse(data);
@@ -11,21 +15,21 @@ export function handleRegistration(ws: WebSocket, data: any, id: number) {
       error = true;
       errorText = 'Username already exists';
     } else {
-      playerDatabase[name] = { name, password };
+      const index = generateUserId();
+      playerDatabase[name] = { name, password, index };
     }
 
     const response = {
       type: 'reg',
       data: JSON.stringify({
         name,
-        index: 0, // placeholder
+        index: playerDatabase[name].index, 
         error,
         errorText,
       }),
       id,
     };
 
-    console.log(JSON.stringify(response))
     ws.send(JSON.stringify(response));
 }
 
