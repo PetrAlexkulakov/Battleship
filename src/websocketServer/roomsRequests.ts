@@ -1,20 +1,29 @@
 import WebSocket from "ws";
 import { wss } from "./websocketServer.js";
 import { playerDatabase } from "./usersRequests.js";
-import { IGameRooms } from "../interfaces.js";
+import { IGameRooms } from "../inerfaces/interfaces.js";
 
 export const gameRooms: IGameRooms = {};
 
 function generateRoomId(): number {
-    return Math.floor(Math.random() * 1000);
+  let i = 0
+  do {
+    i = Math.floor(Math.random() * 1000);
+  } while (Object.keys(gameRooms).find((el) => Number(el) === i))
+  return i;
 }
 
 export function handleCreateRoom(ws: WebSocket, id: number) {
     const roomId = generateRoomId();
     gameRooms[roomId] = {
       players: [ws],
-      gameField: null, // Placeholder
-      shipPositions: {player1: []} 
+      gameField: {
+       player1: Array.from({ length: 10 }, () => Array(10).fill({hasShip: false, isHit: false})),
+       player2: Array.from({ length: 10 }, () => Array(10).fill({hasShip: false, isHit: false}))
+      },
+      shipPositions: {player1: []},
+      playersId: [],
+      turnId: 0,
     };
     
     wss.clients.forEach((client) => {
@@ -37,7 +46,7 @@ export function handleCreateRoom(ws: WebSocket, id: number) {
     })
 }
 
-export function handleAddPlayerToRoom(ws: WebSocket, data: any, id: number) {
+export function handleAddPlayerToRoom(ws: WebSocket, data: string, id: number) {
     const { indexRoom } = JSON.parse(data);
     const room = gameRooms[indexRoom];
 
@@ -45,7 +54,8 @@ export function handleAddPlayerToRoom(ws: WebSocket, data: any, id: number) {
       room.players.push(ws);
     }
     
-    room.players.forEach((player, index) => {
+    room.players.forEach((player) => {
+      const index = Object.values(playerDatabase).find((el) => el.ws === player)?.index
       const response = {
         type: 'create_game',
         data: JSON.stringify({
@@ -54,7 +64,7 @@ export function handleAddPlayerToRoom(ws: WebSocket, data: any, id: number) {
         }),
         id,
       };
-  
+      room.playersId.push(Object.values(playerDatabase).find((el) => el.ws === player)!.index)
       player.send(JSON.stringify(response));
     })
 }

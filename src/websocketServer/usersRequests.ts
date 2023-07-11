@@ -1,12 +1,16 @@
 import WebSocket from "ws";
 
-export const playerDatabase: { [key: string]: { name: string, password: string, index: number } } = {};
+export const playerDatabase: { [key: string]: { name: string, password: string, index: number, ws: WebSocket } } = {};
 
 function generateUserId(): number {
-  return Math.floor(Math.random() * 1000);
+  let i = 0
+  do {
+    i = Math.floor(Math.random() * 1000);
+  } while (Object.values(playerDatabase).find((el) => el.index === i))
+  return i;
 }
 
-export function handleRegistration(ws: WebSocket, data: any, id: number) {
+export function handleRegistration(ws: WebSocket, data: string, id: number) { //можно попробовать здесь ws запомнить и потом сравнивать, чтоб id понимать
     const { name, password } = JSON.parse(data);
     let error = false;
     let errorText = '';
@@ -16,7 +20,7 @@ export function handleRegistration(ws: WebSocket, data: any, id: number) {
       errorText = 'Username already exists';
     } else {
       const index = generateUserId();
-      playerDatabase[name] = { name, password, index };
+      playerDatabase[name] = { name, password, index, ws };
     }
 
     const response = {

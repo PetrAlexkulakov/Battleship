@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import { handleAddPlayerToRoom, handleCreateRoom } from "./roomsRequests.js";
 import { handleRegistration, handleUpdateWinners } from "./usersRequests.js";
 import { handleAddShips } from "./shipsRequests.js";
+import { handleAttack } from "./gamesRequests.js";
 
 export function handleRequest(ws: WebSocket, requestData: any) {
     const { type, data, id } = requestData;
@@ -22,7 +23,12 @@ export function handleRequest(ws: WebSocket, requestData: any) {
       case 'add_ships':
         handleAddShips(ws, data, id);
         break;
+      case 'attack':
+        handleAttack(ws, data, id);
+        break;
       default:
         console.log('Unknown request type:', type);
     }
 }
+
+
