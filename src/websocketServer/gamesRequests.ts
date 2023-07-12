@@ -24,7 +24,7 @@ export function handleAttack(ws: WebSocket, data: string, id: number) {
       sendResponseToBothPlayers(gameRooms[gameId], response)
 
       let idOfTurn = indexPlayer
-      
+
       if (attackResult === "killed") {
         createShipKilled(gameId, x, y, indexPlayer);
       }
@@ -40,6 +40,21 @@ export function handleAttack(ws: WebSocket, data: string, id: number) {
     }
 }
 
+export function handleRandomAttack(ws: WebSocket, data: any, id: number) {
+  const { gameId, indexPlayer } = JSON.parse(data);
+  const field = sayGameField(gameId, indexPlayer);
+  let randomX = Math.floor(Math.random() * 10)
+  let randomY = Math.floor(Math.random() * 10)
+
+  do {
+    randomX = Math.floor(Math.random() * 10)
+    randomY = Math.floor(Math.random() * 10)
+  } while (field[randomX][randomY].isHit === true)
+
+  const GoData = JSON.stringify({ gameId: gameId, x: randomX, y: randomY, indexPlayer: indexPlayer, })
+  handleAttack(ws, GoData, 0)
+}
+
 export function sendTurn(ws: WebSocket, playerId: number) {
   const response = {
       type: "turn",
@@ -53,7 +68,7 @@ export function sendTurn(ws: WebSocket, playerId: number) {
 }
 
 function createShipKilled(gameId: number, x: number, y: number, indexPlayer: number){
-  const gameField = sayGameField(gameId, x, y, indexPlayer)
+  const gameField = sayGameField(gameId, indexPlayer)
   const ship = gameField[x][y].ship;
   x = ship.position.x
   y = ship.position.y
@@ -113,7 +128,7 @@ function createShipKilled(gameId: number, x: number, y: number, indexPlayer: num
 }
 
 function sayAttackResult(gameId: number, x: number, y: number, indexPlayer: number) {
-  const gameField = sayGameField(gameId, x, y, indexPlayer)
+  const gameField = sayGameField(gameId, indexPlayer)
 
   if (gameField[x][y].hasShip === true && gameField[x][y].isHit === false) {
     gameField[x][y].ship.length--
@@ -129,7 +144,7 @@ function sayAttackResult(gameId: number, x: number, y: number, indexPlayer: numb
   return "miss"
 }
 
-function sayGameField(gameId: number, x: number, y: number, indexPlayer: number){
+function sayGameField(gameId: number, indexPlayer: number){
   return indexPlayer === gameRooms[gameId].playersId[0] ? gameRooms[gameId].gameField.player1 : gameRooms[gameId].gameField.player2
 }
 
