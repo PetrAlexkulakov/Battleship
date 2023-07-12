@@ -10,7 +10,7 @@ function generateUserId(): number {
   return i;
 }
 
-export function handleRegistration(ws: WebSocket, data: string, id: number) { //можно попробовать здесь ws запомнить и потом сравнивать, чтоб id понимать
+export function handleRegistration(ws: WebSocket, data: string, id: number) {
     const { name, password } = JSON.parse(data);
     let error = false;
     let errorText = '';

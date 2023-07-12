@@ -18,6 +18,7 @@ export interface IShip {
 export interface ICell {
   hasShip: boolean;
   isHit: boolean; 
+  ship: IShip;
 }
 
 export interface IGameField {
@@ -25,14 +26,16 @@ export interface IGameField {
   player2: ICell[][]
 }
 
+export interface IGameRoom { 
+  players: WebSocket[], 
+  gameField: IGameField, 
+  shipPositions: IShipPositions,
+  playersId: number[],
+  turnId: number
+}
+
 export interface IGameRooms { 
-  [key: number]: { 
-    players: WebSocket[], 
-    gameField: IGameField, 
-    shipPositions: IShipPositions,
-    playersId: number[],
-    turnId: number
-  } 
+  [key: number]: IGameRoom
 }
 [
     {

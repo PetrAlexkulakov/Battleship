@@ -8,9 +8,9 @@ export function handleAddShips(ws: WebSocket, data: string, id: number) {
     const { gameId, ships } = JSON.parse(data);
 
     if (gameRooms[gameId].shipPositions.player1.length === 0) {
-        gameRooms[gameId].shipPositions.player1 = ships as IShip[];
+        gameRooms[gameId].shipPositions.player1 = ships;
     } else {
-        gameRooms[gameId].shipPositions.player2 = ships as IShip[];
+        gameRooms[gameId].shipPositions.player2 = ships;
         
         gameRooms[gameId].players.forEach((player, index) => {
             const response = {
@@ -23,9 +23,7 @@ export function handleAddShips(ws: WebSocket, data: string, id: number) {
                 id: 0,
             }
     
-            player.send(JSON.stringify(response));
-            // placeShipOnField(Object.values(gameRooms[gameId].shipPositions)[index], index, gameId) 
-            
+            player.send(JSON.stringify(response)); 
         })
         gameRooms[gameId].turnId = gameRooms[gameId].playersId[0]
         placeShipOnField(gameRooms[gameId].shipPositions.player1, gameRooms[gameId].gameField.player1)
@@ -38,11 +36,11 @@ export function handleAddShips(ws: WebSocket, data: string, id: number) {
 function placeShipOnField(ships: IShip[], field: ICell[][]) {
     ships.forEach((ship) => {
         if (ship.direction === true) {
-            for (let i = 0; i < ship.length; i++) field[ship.position.x][ship.position.y + i] = {hasShip: true, isHit: false};
+            for (let i = 0; i < ship.length; i++) 
+              field[ship.position.x][ship.position.y + i] = {hasShip: true, isHit: false, ship: ship};
         } else {
-            for (let i = 0; i < ship.length; i++) field[ship.position.x + i][ship.position.y] = {hasShip: true, isHit: false};
+            for (let i = 0; i < ship.length; i++) 
+              field[ship.position.x + i][ship.position.y] = {hasShip: true, isHit: false, ship: ship};
         }
     })
-
-    console.log(JSON.stringify(field))
 }
