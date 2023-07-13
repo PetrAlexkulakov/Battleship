@@ -11,9 +11,6 @@ export function handleRequest(ws: WebSocket, requestData: any) {
       case 'reg':
         handleRegistration(ws, data, id);
         break;
-      case 'update_winners':
-        handleUpdateWinners(ws, id);
-        break;
       case 'create_room':
         handleCreateRoom(ws, id);
         break;

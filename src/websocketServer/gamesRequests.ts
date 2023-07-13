@@ -1,6 +1,7 @@
 import WebSocket from "ws";
 import { gameRooms } from "./roomsRequests.js";
 import { ICell, IGameRoom, IShip } from "../inerfaces/interfaces.js";
+import { handleUpdateWinners, playerDatabase } from "./usersRequests.js";
 
 export function handleAttack(ws: WebSocket, data: string, id: number) {
     const { gameId, x, y, indexPlayer } = JSON.parse(data);
@@ -31,6 +32,7 @@ export function handleAttack(ws: WebSocket, data: string, id: number) {
         const ourShips = indexPlayer === gameRooms[gameId].playersId[0] ? gameRooms[gameId].shipPositions.player1 : gameRooms[gameId].shipPositions.player2
         if (ourShips?.every((obj) => obj.length <= 0)){
           handleFinish(gameRooms[gameId], indexPlayer, id);
+          handleUpdateWinners();
         }
       }
 
@@ -60,16 +62,18 @@ export function handleRandomAttack(ws: WebSocket, data: any, id: number) {
   handleAttack(ws, GoData, 0)
 }
 
-function handleFinish(gameRoom: IGameRoom, winPlayer: number, id: number) {
+function handleFinish(gameRoom: IGameRoom, winPlayerId: number, id: number) {
   const response = {
     type: 'finish',
     data: JSON.stringify({
-      winPlayer: winPlayer
+      winPlayer: winPlayerId
     }),
     id,
   };
 
   sendResponseToBothPlayers(gameRoom, response);
+  const winPlayer = Object.values(playerDatabase).find((player) => player.index === winPlayerId)
+  winPlayer!.wins += 1;
 }
 
 export function sendTurn(ws: WebSocket, playerId: number) {

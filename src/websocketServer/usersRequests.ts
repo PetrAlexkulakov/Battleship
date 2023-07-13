@@ -1,6 +1,7 @@
 import WebSocket from "ws";
+import { wss } from "./websocketServer.js";
 
-export const playerDatabase: { [key: string]: { name: string, password: string, index: number, ws: WebSocket } } = {};
+export const playerDatabase: { [key: string]: { name: string, password: string, index: number, ws: WebSocket, wins: number } } = {};
 
 function generateUserId(): number {
   let i = 0
@@ -20,7 +21,7 @@ export function handleRegistration(ws: WebSocket, data: string, id: number) {
       errorText = 'Username already exists';
     } else {
       const index = generateUserId();
-      playerDatabase[name] = { name, password, index, ws };
+      playerDatabase[name] = { name, password, index, ws, wins: 0 };
     }
 
     const response = {
@@ -37,23 +38,20 @@ export function handleRegistration(ws: WebSocket, data: string, id: number) {
     ws.send(JSON.stringify(response));
 }
 
-export function handleUpdateWinners(ws: WebSocket, id: number) {
-    const winnersData = [
-      {
-        name: 'Player 1',
-        wins: 5,
-      },
-      {
-        name: 'Player 2',
-        wins: 3,
-      },
-    ];
+export function handleUpdateWinners() {
+    const winnersData = Object.values(playerDatabase).filter((player) => {
+      return player.wins > 0
+    }).map((player) => {
+      return {name: player.name, wins: player.wins}
+    });
 
     const response = {
       type: 'update_winners',
-      data: winnersData,
-      id,
+      data: JSON.stringify(winnersData),
+      id: 0,
     };
-
-    ws.send(JSON.stringify(response));
+    
+    wss.clients.forEach((client) => {
+      client.send(JSON.stringify(response));
+    });
 }
