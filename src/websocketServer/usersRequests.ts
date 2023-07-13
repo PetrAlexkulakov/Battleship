@@ -1,5 +1,6 @@
 import WebSocket from "ws";
 import { wss } from "./websocketServer.js";
+import { gameRooms, handleUpdateRoom } from "./roomsRequests.js";
 
 export const playerDatabase: { [key: string]: { name: string, password: string, index: number, ws: WebSocket, wins: number } } = {};
 
@@ -36,6 +37,10 @@ export function handleRegistration(ws: WebSocket, data: string, id: number) {
     };
 
     ws.send(JSON.stringify(response));
+    Object.keys(gameRooms).forEach((roomId) => {
+      handleUpdateRoom(Number(roomId), ws);
+    })
+    handleUpdateWinners();
 }
 
 export function handleUpdateWinners() {

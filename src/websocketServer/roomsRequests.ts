@@ -27,22 +27,7 @@ export function handleCreateRoom(ws: WebSocket, id: number) {
     };
     
     wss.clients.forEach((client) => {
-      const response = { 
-        type: 'update_room',
-        data: JSON.stringify([
-          {
-              roomId: roomId,
-              roomUsers: Object.entries(playerDatabase).map(([key, value]) => {
-                  return {
-                      name: value.name,
-                      index: value.index, 
-                  };
-              })
-          },
-      ],),
-        id,
-      };
-      client.send(JSON.stringify(response));
+      handleUpdateRoom(roomId, client);
     })
 }
 
@@ -67,4 +52,23 @@ export function handleAddPlayerToRoom(ws: WebSocket, data: string, id: number) {
       room.playersId.push(Object.values(playerDatabase).find((el) => el.ws === player)!.index)
       player.send(JSON.stringify(response));
     })
+}
+
+export function handleUpdateRoom(roomId: number, client: WebSocket){
+  const response = { 
+    type: 'update_room',
+    data: JSON.stringify([
+      {
+          roomId: roomId,
+          roomUsers: Object.entries(playerDatabase).map(([key, value]) => {
+              return {
+                  name: value.name,
+                  index: value.index, 
+              };
+          })
+      },
+  ],),
+    id: 0,
+  };
+  client.send(JSON.stringify(response));
 }
