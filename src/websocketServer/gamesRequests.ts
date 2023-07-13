@@ -27,6 +27,11 @@ export function handleAttack(ws: WebSocket, data: string, id: number) {
 
       if (attackResult === "killed") {
         createShipKilled(gameId, x, y, indexPlayer);
+
+        const ourShips = indexPlayer === gameRooms[gameId].playersId[0] ? gameRooms[gameId].shipPositions.player1 : gameRooms[gameId].shipPositions.player2
+        if (ourShips?.every((obj) => obj.length <= 0)){
+          handleFinish(gameRooms[gameId], indexPlayer, id);
+        }
       }
 
       if (attackResult === "miss") {
@@ -53,6 +58,18 @@ export function handleRandomAttack(ws: WebSocket, data: any, id: number) {
 
   const GoData = JSON.stringify({ gameId: gameId, x: randomX, y: randomY, indexPlayer: indexPlayer, })
   handleAttack(ws, GoData, 0)
+}
+
+function handleFinish(gameRoom: IGameRoom, winPlayer: number, id: number) {
+  const response = {
+    type: 'finish',
+    data: JSON.stringify({
+      winPlayer: winPlayer
+    }),
+    id,
+  };
+
+  sendResponseToBothPlayers(gameRoom, response);
 }
 
 export function sendTurn(ws: WebSocket, playerId: number) {
